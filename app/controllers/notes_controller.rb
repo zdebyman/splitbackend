@@ -1,10 +1,10 @@
 class NotesController < ApplicationController
-  before_action :set_note, only: %i[ show update destroy ]
+  before_action :set_note, only: [:show, :update, :destroy]
   before_action :authorized
 
   # GET /notes
   def index
-    @notes = Note.find_by(user_id: @user.id)
+    @notes = Note.where user: @user.id
 
     render json: @notes
   end
@@ -37,7 +37,7 @@ class NotesController < ApplicationController
 
   # DELETE /notes/1
   def destroy
-    @note.destroy!
+    @note.destroy
   end
 
   private
@@ -46,7 +46,7 @@ class NotesController < ApplicationController
       @note = Note.find(params[:id])
     end
 
-    # Only allow a list of trusted parameters through.
+    # Only allow a trusted parameter "white list" through.
     def note_params
       params.require(:note).permit(:title, :body, :user_id)
     end
