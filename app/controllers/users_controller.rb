@@ -1,6 +1,16 @@
 class UsersController < ApplicationController
   before_action :authorized, only: [:auto_login]
 
+  def index
+    all_users = User.where.not(id: logged_in_user.id)
+    render json: all_users
+  end
+
+  def show
+    user = User.find(params[:user_id])
+    render json: user
+  end
+
   def create
     @user = User.create(user_params)
     if @user.valid?
