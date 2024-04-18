@@ -1,6 +1,5 @@
 
 Rails.application.routes.draw do
-  resources :notes
   resource :users, only: [:create]
 
   get "/users", to: "users#index"
