@@ -16,8 +16,9 @@ class ExpensesController < ApplicationController
   end
 
   def create
+    puts "\n\n\n\n\n\n EXPENSE PARAMS: #{expense_params}"
     payer = User.find_by!(id: expense_params[:payer_id])
-    @expense = @user.expenses.build(expense_params.merge(payer_id: payer.id))
+    @expense = payer.expenses.build(expense_params)
 
     if @expense.save
       render json: @expense, status: :created, location: @expense
@@ -33,10 +34,16 @@ class ExpensesController < ApplicationController
   end
 
   def expense_params
+    puts "\n\n-----> #{params}"
     params.require(:expense).permit(:description, 
                                     :total_amount, 
                                     :date, 
                                     :payer_id,
-                                    splits_attributes: [:id, :payee_id, :amount, :_destroy])
+                                    :split_type,
+                                    splits_attributes: [
+                                      :id, 
+                                      :payee_id, 
+                                      :amount, 
+                                      :_destroy])
   end
 end

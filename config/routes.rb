@@ -2,6 +2,7 @@
 Rails.application.routes.draw do
   resources :notes
   resource :users, only: [:create]
+
   get "/users", to: "users#index"
   get "/users/:user_id/", to: "users#show"
 
@@ -11,4 +12,6 @@ Rails.application.routes.draw do
 
   post "/login", to: "users#login"
   get "/auto_login", to: "users#auto_login"
+
+  get "/balances", to: "balances#index"
 end
