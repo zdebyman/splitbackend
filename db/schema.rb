@@ -15,12 +15,13 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_17_163028) do
   enable_extension "plpgsql"
 
   create_table "expenses", force: :cascade do |t|
-    t.string "description"
-    t.decimal "total_amount"
-    t.date "date"
-    t.integer "payer_id"
+    t.string "description", null: false
+    t.decimal "total_amount", precision: 10, scale: 2, null: false
+    t.date "date", null: false
+    t.integer "payer_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["payer_id"], name: "index_expenses_on_payer_id"
   end
 
   create_table "group_memberships", force: :cascade do |t|
@@ -48,11 +49,13 @@ ActiveRecord::Schema[7.1].define(version: 2024_04_17_163028) do
   end
 
   create_table "splits", force: :cascade do |t|
-    t.integer "expense_id"
-    t.integer "payee_id"
-    t.decimal "amount"
+    t.integer "expense_id", null: false
+    t.integer "payee_id", null: false
+    t.decimal "amount", precision: 10, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["expense_id"], name: "index_splits_on_expense_id"
+    t.index ["payee_id"], name: "index_splits_on_payee_id"
   end
 
   create_table "users", force: :cascade do |t|
