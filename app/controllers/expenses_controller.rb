@@ -16,10 +16,12 @@ class ExpensesController < ApplicationController
   end
 
   def create
-    payer = User.find_by!(id: expense_params[:payer_id])
+    payer = User.find_by!(username: expense_params[:payer]) 
 
     modified_splits_attrs = modify_split_amounts(expense_params[:split_type], expense_params[:splits_attributes], expense_params[:total_amount])
-    modified_expense_params = expense_params.merge(splits_attributes: modified_splits_attrs)
+    resolved_splits_attrs = resolve_payee_names(modified_splits_attrs)
+    modified_expense_params = expense_params.except(:payer, :splits_attributes).merge(splits_attributes: resolved_splits_attrs, payer_id: payer.id)
+
     @expense = payer.expenses.build(modified_expense_params)
 
     if @expense.save
@@ -39,13 +41,23 @@ class ExpensesController < ApplicationController
     params.require(:expense).permit(:description, 
                                     :total_amount, 
                                     :date, 
-                                    :payer_id,
+                                    :payer,
                                     :split_type,
                                     splits_attributes: [
                                       :id, 
-                                      :payee_id, 
+                                      :payee, 
                                       :amount, 
                                       :_destroy])
+  end
+
+  def resolve_payee_names(splits)
+    splits.map do |split|
+      payee = User.find_by!(username: split[:payee])
+      split[:payee_id] = payee.id
+      split.except(:payee)
+    end
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Payee not found." }, status: :unprocessable_entity
   end
 
   def modify_split_amounts(split_type, splits, total_amount)
